@@ -210,7 +210,7 @@ const placeOrderRazorpay = async (req, res) => {
 //admin panel - order
 const allOrders = async (req, res) => {
   try {
-    const orders = await orderModel.find({$or: [{ paymentType: "COD" }, { payment: true }],})
+    const orders = await orderModel.find({ $or: [{ paymentMethod: "COD" }, { payment: true }],})
     res.json({success:true,orders})
 
   } catch (error) {
