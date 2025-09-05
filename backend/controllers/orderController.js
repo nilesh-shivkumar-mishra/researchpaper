@@ -173,11 +173,11 @@ const stripeWebHooks = async (req, res) => {
             //Clear User cart
             await userModel.findByIdAndUpdate(userId, {cartData: {}})
 
-               break;
+             break;
         }
      
 
-             case "payment_intent.payment_failed":{
+          case "payment_intent.payment_failed":{
             const paymentIntent = event.data.object;
             const paymentIntentId = paymentIntent.id;
 
@@ -227,10 +227,8 @@ const userOrders = async (req, res) => {
 
     const orders = await orderModel.find({
       userId,
-      $or: [{ paymentType: "COD" }, { payment: true }],
-    })
-      .populate("items._id address")
-      .sort({ createdAt: -1 });
+      $or: [{ paymentMethod: "COD" }, { payment: true }],
+    }).sort({ createdAt: -1 });
 
     res.json({ success: true, orders })
   } catch (error) {
