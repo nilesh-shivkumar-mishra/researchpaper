@@ -188,29 +188,8 @@ const stripeWebHooks = async (req, res) => {
 
             const { orderId, userId } = session.data[0].metadata
             await orderModel.findByIdAndDelete(orderId);
-              break;
+            break;
         }
-      
-
-        case "checkout.session.expired": {
-          const session = event.data.object;
-        
-          try {
-            const { orderId } = session.data[0].metadata;
-        
-            const deleted = await orderModel.findByIdAndDelete(orderId);
-            if (deleted) {
-              console.log("🗑️ Abandoned checkout session — Order deleted:", orderId);
-            } else {
-              console.warn("⚠️ No order found for expired session:", orderId);
-            }
-          } catch (err) {
-            console.error("❌ Error deleting expired order:", err.message);
-          }
-        
-          break;
-        }
-
 
         default:
             console.error(`Unhandled event type ${event.type}`)
@@ -231,7 +210,7 @@ const placeOrderRazorpay = async (req, res) => {
 //admin panel - order
 const allOrders = async (req, res) => {
   try {
-    const orders = await orderModel.find({})
+    const orders = await orderModel.find({$or: [{ paymentType: "COD" }, { payment: true }],})
     res.json({success:true,orders})
 
   } catch (error) {
@@ -246,7 +225,13 @@ const userOrders = async (req, res) => {
   try {
     const { userId } = req.body
 
-    const orders = await orderModel.find({ userId }) // finding order by userId
+    const orders = await orderModel.find({
+      userId,
+      $or: [{ paymentType: "COD" }, { payment: true }],
+    })
+      .populate("items._id address")
+      .sort({ createdAt: -1 });
+
     res.json({ success: true, orders })
   } catch (error) {
     console.log(error);
