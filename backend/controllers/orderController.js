@@ -172,39 +172,45 @@ const stripeWebHooks = async (req, res) => {
             
             //Clear User cart
             await userModel.findByIdAndUpdate(userId, {cartData: {}})
-        }
-        break;
 
-       case "payment_intent.payment_failed":{
-    try {
-        const paymentIntent = event.data.object;
-        const paymentIntentId = paymentIntent.id;
-        
-        console.log('❌ Payment failed for intent:', paymentIntentId);
-        
-        //getting session Metadata
-        const session = await stripeInstance.checkout.sessions.list({
-            payment_intent: paymentIntentId
-        })
-        
-        if (session.data.length === 0) {
-            console.log('⚠️ No session found for failed payment');
-            break;
+               break;
         }
-        
-        const { orderId, userId } = session.data[0].metadata
-        console.log('🗑️ Deleting failed order:', orderId);
-        
-        const result = await orderModel.findByIdAndDelete(orderId);
-        console.log('Order deletion result:', result ? 'Success' : 'Order not found');
-        
-    } catch (error) {
-        console.error('Error handling payment failure:', error);
-    }
-}
-break;
+     
 
-        break;
+             case "payment_intent.payment_failed":{
+            const paymentIntent = event.data.object;
+            const paymentIntentId = paymentIntent.id;
+
+            //getting session Metadata
+            const session = await stripeInstance.checkout.sessions.list({
+                payment_intent: paymentIntentId
+            })
+
+            const { orderId, userId } = session.data[0].metadata
+            await orderModel.findByIdAndDelete(orderId);
+              break;
+        }
+      
+
+        case "checkout.session.expired": {
+          const session = event.data.object;
+        
+          try {
+            const { orderId } = session.data[0].metadata;
+        
+            const deleted = await orderModel.findByIdAndDelete(orderId);
+            if (deleted) {
+              console.log("🗑️ Abandoned checkout session — Order deleted:", orderId);
+            } else {
+              console.warn("⚠️ No order found for expired session:", orderId);
+            }
+          } catch (err) {
+            console.error("❌ Error deleting expired order:", err.message);
+          }
+        
+          break;
+        }
+
 
         default:
             console.error(`Unhandled event type ${event.type}`)
@@ -212,6 +218,7 @@ break;
     }
     res.json({received: true})
 }
+      
 
 
 
