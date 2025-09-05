@@ -16,15 +16,14 @@ connectCloudinary()
 
 // Allow multiple origins
 const allowedOrigins = ["http://localhost:5173" , "https://researchpaper-frontend.vercel.app"];
-
 app.post("/stripe", express.raw({ type: "application/json" }), stripeWebHooks);
 
 // middlewares
 app.use(express.json());
-app.use(cors())
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 
 //Routes
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+
 app.use('/api/user',userRouter)
 app.use('/api/product',productRouter)
 app.use('/api/cart',cartRouter)
