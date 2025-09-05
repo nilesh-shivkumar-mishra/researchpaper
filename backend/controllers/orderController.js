@@ -165,7 +165,7 @@ const stripeWebHooks = async (req, res) => {
                 payment_intent: paymentIntentId
             })
 
-            const { orderId, userId } = session.data[0].metadata
+            const {orderId, userId } = session.data[0].metadata
 
             //Mark payment as Paid
             await orderModel.findByIdAndUpdate(orderId, {payment: true})
@@ -175,19 +175,35 @@ const stripeWebHooks = async (req, res) => {
         }
         break;
 
-        case "payment_intent.payment_failed":{
-            const paymentIntent = event.data.object;
-            const paymentIntentId = paymentIntent.id;
-
-            //getting session Metadata
-            const session = await stripeInstance.checkout.sessions.list({
-                payment_intent: paymentIntentId
-            })
-
-            const { orderId, userId } = session.data[0].metadata
-            await orderModel.findByIdAndDelete(orderId);
-
+       case "payment_intent.payment_failed":{
+    try {
+        const paymentIntent = event.data.object;
+        const paymentIntentId = paymentIntent.id;
+        
+        console.log('❌ Payment failed for intent:', paymentIntentId);
+        
+        //getting session Metadata
+        const session = await stripeInstance.checkout.sessions.list({
+            payment_intent: paymentIntentId
+        })
+        
+        if (session.data.length === 0) {
+            console.log('⚠️ No session found for failed payment');
+            break;
         }
+        
+        const { orderId, userId } = session.data[0].metadata
+        console.log('🗑️ Deleting failed order:', orderId);
+        
+        const result = await orderModel.findByIdAndDelete(orderId);
+        console.log('Order deletion result:', result ? 'Success' : 'Order not found');
+        
+    } catch (error) {
+        console.error('Error handling payment failure:', error);
+    }
+}
+break;
+
         break;
 
         default:
