@@ -232,8 +232,9 @@ const Placeorder = () => {
               ></p>
               <img className="h-5 mx-4" src={assets.stripe_logo} alt="" />
             </div>
-
-            <div
+ 
+            {/*we not include  */}
+            {/* <div
               onClick={() => setMethod("razorpay")}
               className="flex items-center gap-3 border p-2 px-3 cursor-pointer"
             >
@@ -243,7 +244,7 @@ const Placeorder = () => {
                 }`}
               ></p>
               <img className="h-5 mx-4" src={assets.razorpay_logo} alt="" />
-            </div>
+            </div> */}
 
             <div
               onClick={() => setMethod("cod")}
@@ -263,7 +264,7 @@ const Placeorder = () => {
           <div className="w-full text-end mt-8">
             <button //onClick={()=>navigate('/order')}
               type="submit"
-              className="bg-black text-white px-16 py-3 text-sm">
+              className="bg-primary text-white px-16 py-3 text-sm">
               PLACE ORDER
             </button>
           </div>

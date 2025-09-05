@@ -15,7 +15,7 @@ connectDB()
 connectCloudinary()
 
 // Allow multiple origins
-const allowedOrigins = ["http://localhost:5173/"];
+const allowedOrigins = ["http://localhost:5173" , "https://researchpaper-8qjc.vercel.app"];
 
 app.post("/stripe", express.raw({ type: "application/json" }), stripeWebHooks);
 
