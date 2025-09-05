@@ -15,7 +15,7 @@ connectDB()
 connectCloudinary()
 
 // Allow multiple origins
-const allowedOrigins = ["http://localhost:5173" , "https://researchpaper-frontend.vercel.app"];
+const allowedOrigins = ["http://localhost:5173","http://localhost:5174" , "https://researchpaper-frontend.vercel.app","https://researchpaper-admin.vercel.app/"];
 app.post("/stripe", express.raw({ type: "application/json" }), stripeWebHooks);
 
 // middlewares
